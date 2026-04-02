@@ -7,6 +7,7 @@ ROOT_DIR="$(cd "$NOTEBOOK_DIR/.." && pwd)"
 args=("$@")
 has_results_dir=0
 has_log_dir=0
+has_nproc=0
 
 for ((i=0; i<${#args[@]}; i++)); do
   case "${args[i]}" in
@@ -18,6 +19,10 @@ for ((i=0; i<${#args[@]}; i++)); do
       has_log_dir=1
       ((i++))
       ;;
+    --nproc)
+      has_nproc=1
+      ((i++))
+      ;;
   esac
 done
 
@@ -26,6 +31,9 @@ if [[ $has_results_dir -eq 0 ]]; then
 fi
 if [[ $has_log_dir -eq 0 ]]; then
   args+=(--log-dir "$ROOT_DIR/logs")
+fi
+if [[ $has_nproc -eq 0 ]]; then
+  args+=(--nproc 4)
 fi
 
 exec bash "$ROOT_DIR/scripts/run_specfem3d_case.sh" "${args[@]}"
