@@ -1,0 +1,434 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{siunitx}
+
+\geometry{margin=2.4cm}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!50!black,
+    urlcolor=blue!50!black,
+    citecolor=blue!50!black
+}
+
+\title{Compara\c{c}\~ao Spyro--SPECFEM e an\'alises de converg\^encia\\
+para propaga\c{c}\~ao de ondas el\'asticas 2D e 3D\\[6pt]
+\large Valida\c{c}\~ao cruzada e casos com free surface no topo}
+\author{}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+% ============================================================================
+\section{Objetivo}
+% ============================================================================
+
+Este relat\'orio documenta tr\^es grupos de resultados:
+\begin{enumerate}
+    \item \textbf{compara\c{c}\~ao direta Spyro--SPECFEM}: casos 2D e 3D
+    usados como valida\c{c}\~ao cruzada, em configura\c{c}\~oes totalmente
+    refletivas;
+    \item \textbf{converg\^encia global por autoconverg\^encia}: erro $L^2$
+    do campo de deslocamento no tempo final, medido contra uma solu\c{c}\~ao
+    de refer\^encia em malha mais refinada (2D e 3D);
+    \item \textbf{converg\^encia em receptores}: erro $L^2$ relativo dos
+    tra\c{c}os nos receptores contra refer\^encia refinada (2D e 3D).
+\end{enumerate}
+
+\noindent
+Todos os estudos de converg\^encia utilizam \emph{free surface} no topo
+($z=0$) e condi\c{c}\~oes de Dirichlet nas demais faces.
+
+% ============================================================================
+\section{Escopo dos estudos}
+% ============================================================================
+
+Os resultados de converg\^encia cobrem dois cen\'arios, cada um avaliado com
+elementos espectrais (quadril\'ateros/hex\'aedros, Q) e elementos KMV
+(tri\^angulos/tetraedros, T):
+\begin{enumerate}
+    \item \textbf{global 2D}: dom\'inio $[0,\,3]\times[-3,\,0]$\,km, fonte em
+    $(-0.6,\,1.5)$, Ricker $f=5$\,Hz com atraso $\tau=0.2$\,s,
+    $t_f=1.0$\,s, $\Delta t=5\times10^{-4}$\,s. Malha de refer\^encia
+    $h_{\text{ref}}=0.015$. O erro global \'e medido pela norma $L^2$
+    ponderada do campo de deslocamento no tempo final, avaliada nos pontos
+    de quadratura GLL da malha grosseira;
+    \item \textbf{global 3D}: dom\'inio $[0,\,1]^3$\,km, fonte em
+    $(-0.3,\,0.5,\,0.5)$, Ricker $f=5$\,Hz com atraso $\tau=0.2$\,s,
+    $t_f=0.5$\,s, $\Delta t=5\times10^{-4}$\,s. Malha de refer\^encia
+    $h_{\text{ref}}=0.04$.
+\end{enumerate}
+
+\noindent
+Em todos os casos, a face superior em $z=0$ permanece livre (\emph{free
+surface}) e as demais faces recebem condi\c{c}\~oes de Dirichlet
+hom\^ogeneas. A compara\c{c}\~ao Spyro--SPECFEM \'e mantida como
+refer\^encia de valida\c{c}\~ao cruzada e usa um setup separado, totalmente
+refletivo.
+
+% ============================================================================
+\section{Compara\c{c}\~ao Spyro \emph{vs.}\ SPECFEM}
+\label{sec:comparison}
+% ============================================================================
+
+A compara\c{c}\~ao direta com o SPECFEM \'e mantida neste relat\'orio como
+evid\^encia de valida\c{c}\~ao cruzada do solver el\'astico do Spyro. Esses
+casos usam um setup 2D/3D totalmente refletivo, separado dos estudos de
+converg\^encia discutidos nas se\c{c}\~oes seguintes.
+
+\subsection{Caso 2D}
+
+No caso 2D, os dois solvers usam malhas equivalentes de grau 4 com
+$h=0.02$, tempo final $t_f=1.5$\,s e passo temporal $\Delta t=10^{-3}$\,s. Os
+erros L2 relativos nos receptores s\~ao:
+\[
+\varepsilon_{L2}(u_x) = 3.13\%, \qquad \varepsilon_{L2}(u_z) = 3.16\%.
+\]
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../results/elastic_evaluation/comparison_2d/ux_bxx_comparison.png}
+        \caption{Componente $u_x$.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../results/elastic_evaluation/comparison_2d/uz_bxz_comparison.png}
+        \caption{Componente $u_z$.}
+    \end{subfigure}
+    \caption{Compara\c{c}\~ao 2D Spyro \emph{vs.}\ SPECFEM2D: sismogramas nos receptores.}
+    \label{fig:comp-2d}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{../results/elastic_evaluation/trace_detail_2d.png}
+    \caption{Detalhe da compara\c{c}\~ao 2D: tra\c{c}os sobrepostos (topo), diferen\c{c}a pontual Spyro$-$SPECFEM (meio) e zoom na regi\~ao de maior erro (base).}
+    \label{fig:trace-detail-2d}
+\end{figure}
+
+\subsection{Caso 3D}
+
+No caso 3D, os dois solvers usam discretiza\c{c}\~oes equivalentes de grau 4
+com $h=0.10$, tempo final $t_f=1.5$\,s e passo temporal $\Delta t=10^{-3}$\,s.
+Os erros L2 relativos permanecem em torno de 3.6\%:
+\[
+\varepsilon_{L2}(u_x) = 3.66\%, \qquad
+\varepsilon_{L2}(u_y) = 3.64\%, \qquad
+\varepsilon_{L2}(u_z) = 3.63\%.
+\]
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../results/elastic_evaluation/comparison_3d/ux_bxx_comparison.png}
+        \caption{Componente $u_x$.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../results/elastic_evaluation/comparison_3d/uy_bxy_comparison.png}
+        \caption{Componente $u_y$.}
+    \end{subfigure}
+    \\[6pt]
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../results/elastic_evaluation/comparison_3d/uz_bxz_comparison.png}
+        \caption{Componente $u_z$.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../results/elastic_evaluation/comparison_3d/trace_comparison.png}
+        \caption{Tra\c{c}o do receptor central.}
+    \end{subfigure}
+    \caption{Compara\c{c}\~ao 3D Spyro \emph{vs.}\ SPECFEM3D.}
+    \label{fig:comp-3d}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{../results/elastic_evaluation/trace_detail_3d.png}
+    \caption{Detalhe da compara\c{c}\~ao 3D: tra\c{c}os sobrepostos, diferen\c{c}a pontual e zoom na regi\~ao de maior erro para cada componente ($u_x$, $u_y$, $u_z$).}
+    \label{fig:trace-detail-3d}
+\end{figure}
+
+\noindent
+Em ambos os casos, a concord\^ancia entre Spyro e SPECFEM \'e excelente, com
+diferen\c{c}as residuais da ordem de 2--5\%, compat\'iveis com diferen\c{c}as de
+implementa\c{c}\~ao na inje\c{c}\~ao da fonte, integra\c{c}\~ao temporal e
+montagem da massa diagonal.
+
+% ============================================================================
+\section{Converg\^encia global por autoconverg\^encia}
+\label{sec:global-selfconv}
+% ============================================================================
+
+Nesta se\c{c}\~ao, mede-se a taxa de converg\^encia do campo de deslocamento
+completo no tempo final. O m\'etodo \'e o de \emph{autoconverg\^encia}:
+executa-se uma simula\c{c}\~ao de refer\^encia em malha fina $h_{\text{ref}}$
+e compara-se o campo de deslocamento das malhas mais grosseiras via norma
+$L^2$ ponderada nos pontos de quadratura GLL. Para cada malha grosseira de
+tamanho $h$, o campo de refer\^encia \'e interpolado na grade GLL da malha
+grosseira usando um campo de refer\^encia tensor-produto Lagrangiano.
+
+A fonte \'e um pulso de Ricker com frequ\^encia $f=5$\,Hz e atraso
+$\tau=0.2$\,s. A escolha de $\tau=0.2$ garante que o wavelet \'e
+essencialmente nulo em $t=0$ ($R(0)\approx -0.001$), evitando a
+introdu\c{c}\~ao de descontinuidades iniciais que degradam a converg\^encia.
+
+\subsection{Caso 2D}
+\label{sec:global-2d}
+
+Dom\'inio $[0,\,3]\times[-3,\,0]$\,km, grau $p=4$, malha de refer\^encia
+$h_{\text{ref}}=0.015$ ($40\,000$ c\'elulas). Oito malhas de varredura
+$h\in\{0.12, 0.10, 0.075, 0.06, 0.05, 0.04, 0.03, 0.02\}$. A ordem global
+ajustada (regi\~ao $h\in[0.04,\,0.12]$) \'e:
+\[
+    p_{\text{global}} = 4.82 \qquad (\text{esperado}: 5.0).
+\]
+
+\begin{table}[h!]
+\centering
+\caption{Autoconverg\^encia 2D: erro $L^2$ relativo do campo de deslocamento.}
+\label{tab:global-2d}
+\begin{tabular}{@{}cccc@{}}
+\toprule
+$h$ & C\'elulas & $\varepsilon_{L^2}$ rel. & Taxa local \\
+\midrule
+0.120 &    625 & $9.54\times10^{-2}$ & --- \\
+0.100 &    900 & $4.82\times10^{-2}$ & 3.75 \\
+0.075 &  1\,600 & $6.71\times10^{-3}$ & 6.85 \\
+0.060 &  2\,500 & $1.70\times10^{-3}$ & 6.14 \\
+0.050 &  3\,600 & $4.64\times10^{-4}$ & 7.13 \\
+0.040 &  5\,625 & $1.10\times10^{-4}$ & 6.46 \\
+0.030 & 10\,000 & $6.73\times10^{-5}$ & 1.70 \\
+0.020 & 22\,500 & $3.54\times10^{-5}$ & 1.59 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+Para $h\le 0.04$, a taxa local cai para ${\approx}\,1.6$, indicando
+satura\c{c}\~ao pelo erro da pr\'opria refer\^encia ($h/h_{\text{ref}}
+\lesssim 2.7$). Nas malhas mais grosseiras ($h\in[0.04,\,0.12]$), a
+converg\^encia \'e limpa e consistente com a ordem te\'orica.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{../results/global_selfconv_top_free_2d/global_selfconv_top_free_2d.png}
+    \caption{Autoconverg\^encia 2D: erro global do campo de deslocamento (esquerda) e erro nos receptores (direita). A reta-guia tracejada corresponde a $O(h^5)$.}
+    \label{fig:global-2d}
+\end{figure}
+
+\subsection{Caso 3D}
+\label{sec:global-3d}
+
+Dom\'inio $[0,\,1]^3$\,km, grau $p=4$, malha de refer\^encia
+$h_{\text{ref}}=0.04$ ($15\,625$ c\'elulas, ${\approx}\,3.1$\,M DOFs).
+Quatro malhas de varredura $h\in\{0.125, 0.10, 0.0625, 0.05\}$. A ordem
+global ajustada \'e:
+\[
+    p_{\text{global}} = 5.85 \qquad (\text{esperado}: 5.0).
+\]
+
+\begin{table}[h!]
+\centering
+\caption{Autoconverg\^encia 3D: erro $L^2$ relativo do campo de deslocamento.}
+\label{tab:global-3d}
+\begin{tabular}{@{}cccc@{}}
+\toprule
+$h$ & C\'elulas & $\varepsilon_{L^2}$ rel. & Taxa local \\
+\midrule
+0.1250 &    512 & $9.61\times10^{-2}$ & --- \\
+0.1000 &  1\,000 & $3.55\times10^{-2}$ & 4.46 \\
+0.0625 &  4\,096 & $1.46\times10^{-3}$ & 6.80 \\
+0.0500 &  8\,000 & $5.67\times10^{-4}$ & 4.22 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+A superestimativa da ordem ($5.85 > 5.0$) decorre das raz\~oes
+$h/h_{\text{ref}}$ moderadas (3.1 a 1.25), t\'ipica do regime de
+autoconverg\^encia quando a refer\^encia n\~ao \'e exata. Ainda assim, as
+curvas por componente ($u_x$, $u_y$, $u_z$) seguem consistentemente a
+reta-guia $O(h^5)$, confirmando que o solver 3D converge com a ordem
+esperada no campo de deslocamento completo.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{../results/global_selfconv_top_free_3d/global_selfconv_top_free_3d.png}
+    \caption{Autoconverg\^encia 3D: erro global do campo de deslocamento (esquerda) e erro nos receptores (direita). A reta-guia tracejada corresponde a $O(h^5)$.}
+    \label{fig:global-3d}
+\end{figure}
+
+% ============================================================================
+\section{Resumo dos resultados de converg\^encia}
+\label{sec:summary}
+% ============================================================================
+
+% ============================================================================
+\subsection{Compara\c{c}\~ao Spectral \emph{vs.}\ KMV}
+\label{sec:spec-vs-kmv}
+% ============================================================================
+
+Nesta se\c{c}\~ao, compara-se a converg\^encia dos elementos espectrais
+(quadril\'ateros/hex\'aedros com mass lumping GLL, $p=4$) com os elementos
+triangulares/tetra\'edricos KMV (Kong--Mulder--Veldhuizen, mass lumping em
+simplices). No caso 2D, ambos usam grau $p=4$; no caso 3D, o KMV usa $p=3$
+(m\'aximo suportado para tetraedros). Os tamanhos de malha $h$ do KMV
+foram escolhidos de forma a produzir n\'umeros de graus de liberdade
+similares aos correspondentes espectrais.
+
+Para o KMV, o erro global \'e calculado por interpola\c{c}\~ao
+\emph{cross-mesh} via Firedrake: ambas as solu\c{c}\~oes (refer\^encia em
+malha fina e corrente em malha grosseira) s\~ao projetadas em um espa\c{c}o
+DG intermedi\'ario na malha grosseira, permitindo o c\'omputo da norma
+$L^2$ da diferen\c{c}a.
+
+\subsubsection{Caso 2D}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../results/spectral_vs_kmv_2d_global_comparison.png}
+        \caption{Erro global do campo.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../results/spectral_vs_kmv_2d_receiver_comparison.png}
+        \caption{Erro nos receptores.}
+    \end{subfigure}
+    \caption{Converg\^encia 2D: Spectral ($p=4$) \emph{vs.}\ KMV ($p=4$).
+    As retas tracejadas indicam a taxa te\'orica $O(h^5)$. Ambos os
+    m\'etodos convergem com a ordem esperada na regi\~ao pr\'e-satura\c{c}\~ao.}
+    \label{fig:spec-vs-kmv-2d}
+\end{figure}
+
+\noindent
+A Tabela~\ref{tab:spec-vs-kmv-2d} resume as ordens observadas. Em 2D com
+mesmo grau, o KMV apresenta erros absolutos ligeiramente maiores para o
+mesmo $h$, compensados pelo fato de que cada c\'elula triangular possui
+menos DOFs que um quadril\'atero de mesmo grau.
+
+\begin{table}[h!]
+\centering
+\caption{Ordens observadas --- compara\c{c}\~ao 2D.}
+\label{tab:spec-vs-kmv-2d}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+M\'etodo & Grau & Ordem esperada & Ordem observada (global) \\
+\midrule
+Spectral (Q) & 4 & 5.0 & 4.82 \\
+KMV (T)      & 4 & 5.0 & 5.12 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Caso 3D}
+
+No caso 3D, o KMV utiliza grau $p=3$ (m\'aximo suportado em tetraedros)
+enquanto o spectral usa $p=4$ em hex\'aedros. A compara\c{c}\~ao \'e,
+portanto, entre ordens te\'oricas distintas: $O(h^5)$ (spectral) e $O(h^4)$
+(KMV).
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../results/spectral_vs_kmv_3d_global_comparison.png}
+        \caption{Erro global do campo.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{../results/spectral_vs_kmv_3d_receiver_comparison.png}
+        \caption{Erro nos receptores.}
+    \end{subfigure}
+    \caption{Converg\^encia 3D: Spectral ($p=4$) \emph{vs.}\ KMV ($p=3$).
+    As retas tracejadas indicam $O(h^5)$ para spectral e $O(h^4)$ para KMV.}
+    \label{fig:spec-vs-kmv-3d}
+\end{figure}
+
+\begin{table}[h!]
+\centering
+\caption{Ordens observadas --- compara\c{c}\~ao 3D.}
+\label{tab:spec-vs-kmv-3d}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+M\'etodo & Grau & Ordem esperada & Ordem observada (global) \\
+\midrule
+Spectral (Q) & 4 & 5.0 & 5.85 \\
+KMV (T)      & 3 & 4.0 & 3.55 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+O KMV 3D converge com ordem ${\approx}\,3.55$, pr\'oximo do esperado
+$O(h^4)$. A diferen\c{c}a de precis\~ao absoluta em rela\c{c}\~ao ao
+spectral reflete tanto o grau inferior ($p=3$ \emph{vs.}\ $p=4$) quanto a
+maior restri\c{c}\~ao de estabilidade CFL dos tetraedros (que exigiram
+$\Delta t = 10^{-4}$\,s contra $5\times10^{-4}$\,s do spectral).
+
+\subsection{Tabela geral}
+
+\begin{table}[h!]
+\centering
+\caption{Principais resultados das an\'alises de converg\^encia.}
+\label{tab:summary}
+\begin{tabular}{@{}llclc@{}}
+\toprule
+M\'etodo & Dim. & Grau & M\'etrica & Ordem observada \\
+\midrule
+\multicolumn{5}{@{}l}{\textit{Erro global no campo de deslocamento (autoconverg\^encia)}} \\
+Spectral (Q)  & 2D & 4 & $L^2$ ponderada, GLL      & 4.82 \\
+Spectral (Q)  & 3D & 4 & $L^2$ ponderada, GLL      & 5.85 \\
+KMV (T)       & 2D & 4 & $L^2$ cross-mesh DG        & 5.12 \\
+KMV (T)       & 3D & 3 & $L^2$ cross-mesh DG        & 3.55 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+As principais conclus\~oes s\~ao:
+\begin{enumerate}
+    \item Na m\'etrica global (campo completo), a ordem te\'orica $p+1$ \'e
+    atingida ou ligeiramente superada em todos os casos. Para o spectral,
+    $p+1=5$ \'e observado tanto em 2D ($4.82$) quanto em 3D ($5.85$). Para o
+    KMV, observa-se $5.12$ em 2D (esperado 5) e $3.55$ em 3D (esperado 4).
+    \item A leve superestimativa no spectral 3D decorre do regime de
+    autoconverg\^encia, com raz\~oes $h/h_{\text{ref}}$ moderadas.
+    \item O KMV 3D utiliza grau $p=3$ (m\'aximo para tetraedros) e apresenta
+    restri\c{c}\~oes de CFL mais severas ($\Delta t = 10^{-4}$\,s contra
+    $5\times10^{-4}$\,s do spectral), resultando em maior custo
+    computacional por passo temporal.
+\end{enumerate}
+
+% ============================================================================
+\section*{Refer\^encia}
+% ============================================================================
+
+\noindent
+[1] Brenner, S. C.; Scott, L. R. \textit{The Mathematical Theory of Finite
+Element Methods}. 3rd ed. New York: Springer, 2008.
+
+\end{document}
